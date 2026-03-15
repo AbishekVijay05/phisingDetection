@@ -1,29 +1,31 @@
 import os
+import re
 
 try:
-    import google.generativeai as genai
+    from google import genai
     GENAI_AVAILABLE = True
 except ImportError:
     GENAI_AVAILABLE = False
 
 
-def _get_model():
-    """Initialize Gemini model if API key is available."""
-    api_key = os.environ.get('GEMINI_API_KEY', '')
-    if not api_key or not GENAI_AVAILABLE:
+def _get_client():
+    """Initialize Gemini client. API key is read from GEMINI_API_KEY env var."""
+    if not GENAI_AVAILABLE:
         return None
     try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-2.0-flash')
-        return model
+        client = genai.Client()
+        return client
     except Exception:
         return None
 
 
+MODEL_ID = "gemini-3-flash-preview"
+
+
 def analyze_url_with_gemini(url, features=None):
     """Use Gemini to analyze a URL for phishing indicators."""
-    model = _get_model()
-    if not model:
+    client = _get_client()
+    if not client:
         return {'available': False, 'analysis': 'Gemini API not configured', 'score': 0}
 
     prompt = f"""You are a cybersecurity expert analyzing URLs for phishing threats.
@@ -44,7 +46,7 @@ ANALYSIS: [2-3 sentence analysis explaining your reasoning]
 """
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(model=MODEL_ID, contents=prompt)
         text = response.text.strip()
         return _parse_gemini_response(text)
     except Exception as e:
@@ -53,12 +55,11 @@ ANALYSIS: [2-3 sentence analysis explaining your reasoning]
 
 def analyze_email_with_gemini(subject='', body_preview='', sender='', links=None):
     """Use Gemini to analyze email content for phishing."""
-    model = _get_model()
-    if not model:
+    client = _get_client()
+    if not client:
         return {'available': False, 'analysis': 'Gemini API not configured', 'score': 0}
 
     links_str = ', '.join(links[:5]) if links else 'None'
-    # Truncate body preview
     body_preview = body_preview[:500] if body_preview else 'No body content'
 
     prompt = f"""You are a cybersecurity expert analyzing emails for phishing threats.
@@ -83,7 +84,7 @@ ANALYSIS: [2-3 sentence analysis explaining your reasoning]
 """
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(model=MODEL_ID, contents=prompt)
         text = response.text.strip()
         return _parse_gemini_response(text)
     except Exception as e:
@@ -92,8 +93,8 @@ ANALYSIS: [2-3 sentence analysis explaining your reasoning]
 
 def analyze_sms_with_gemini(message, sender=''):
     """Use Gemini to analyze SMS for phishing/scam indicators."""
-    model = _get_model()
-    if not model:
+    client = _get_client()
+    if not client:
         return {'available': False, 'analysis': 'Gemini API not configured', 'score': 0}
 
     prompt = f"""You are a cybersecurity expert analyzing SMS messages for phishing and scam threats.
@@ -117,7 +118,7 @@ ANALYSIS: [2-3 sentence analysis explaining your reasoning]
 """
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(model=MODEL_ID, contents=prompt)
         text = response.text.strip()
         return _parse_gemini_response(text)
     except Exception as e:
@@ -134,8 +135,6 @@ def _parse_gemini_response(text):
         if line.upper().startswith('SCORE:'):
             try:
                 score_str = line.split(':', 1)[1].strip()
-                # Extract just the number
-                import re
                 nums = re.findall(r'\d+', score_str)
                 if nums:
                     result['score'] = min(int(nums[0]), 100)
