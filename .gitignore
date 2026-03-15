@@ -1,0 +1,14 @@
+# Databases
+phishguard.db
+
+# User Uploads
+uploads/**
+!uploads/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+.venv/

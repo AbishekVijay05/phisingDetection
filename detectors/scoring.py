@@ -7,12 +7,12 @@ def calculate_combined_score(rule_score, ml_score, gemini_result=None):
     - ML prediction: 30%
     - Gemini AI analysis: 40%
 
-    If Gemini is unavailable, redistribute:
+    If Gemini is unavailable or failed, redistribute:
     - Rule-based: 50%
     - ML prediction: 50%
     """
-    if gemini_result and gemini_result.get('available') and gemini_result.get('score', 0) > 0:
-        gemini_score = gemini_result['score']
+    if gemini_result and gemini_result.get('success'):
+        gemini_score = gemini_result.get('score', 0)
         combined = (rule_score * 0.30) + (ml_score * 0.30) + (gemini_score * 0.40)
     else:
         combined = (rule_score * 0.50) + (ml_score * 0.50)
@@ -44,10 +44,11 @@ def build_result(scan_type, summary, rule_score, ml_score, gemini_result, checks
         'layer_scores': {
             'rule_based': round(rule_score, 1),
             'ml_prediction': round(ml_score, 1),
-            'gemini_ai': gemini_result.get('score', 0) if gemini_result else 0,
+            'gemini_ai': gemini_result.get('score', 0) if gemini_result and gemini_result.get('success') else 0,
         },
         'gemini_analysis': gemini_result.get('analysis', 'Not available') if gemini_result else 'Not configured',
         'gemini_available': gemini_result.get('available', False) if gemini_result else False,
+        'gemini_success': gemini_result.get('success', False) if gemini_result else False,
         'checks': checks,
     }
 

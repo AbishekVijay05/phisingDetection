@@ -247,6 +247,10 @@ def analyze_email(file_content):
     }
     analysis['attachments'] = parsed.get('attachments', [])
     analysis['links'] = parsed.get('links', [])
+    
+    # Add body preview for Gemini/UI
+    body = parsed.get('body_text', '') or parsed.get('body_html', '')
+    analysis['body_preview'] = body[:500] if body else 'No body content'
 
     return analysis
 
@@ -276,6 +280,7 @@ def analyze_email_form(sender, subject, body, links_text=''):
     }
     analysis['attachments'] = []
     analysis['links'] = parsed['links']
+    analysis['body_preview'] = body[:500] if body else 'No body content'
 
     return analysis
 

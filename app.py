@@ -121,7 +121,7 @@ def api_analyze_email():
     # Layer 3: Gemini AI
     gemini_result = analyze_email_with_gemini(
         subject=email_result.get('parsed_headers', {}).get('subject', ''),
-        body_preview=email_result.get('subject', ''),
+        body_preview=email_result.get('body_preview', ''),
         sender=email_result.get('parsed_headers', {}).get('from', ''),
         links=email_result.get('links', [])
     )
