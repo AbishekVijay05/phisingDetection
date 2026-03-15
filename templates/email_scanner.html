@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Email Scanner{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center gap-2 text-xs text-slate-500 uppercase tracking-widest">
+        <a class="hover:text-primary transition-colors" href="/">Dashboard</a>
+        <span class="material-symbols-outlined text-[10px]">chevron_right</span>
+        <span class="text-primary font-bold">Email Scanner</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="border-l-4 border-primary pl-6">
+        <h1 class="text-5xl font-black mb-2 uppercase italic tracking-tighter">Email Scanner.</h1>
+        <p class="text-slate-400 text-lg">Deploy advanced neural analysis to isolate and neutralize phishing vectors within digital communications.</p>
+    </div>
+
+    <!-- Tab Switcher -->
+    <div class="flex gap-2">
+        <button id="tab-upload" onclick="switchEmailTab('upload')" class="px-6 py-3 bg-primary text-white font-black uppercase tracking-widest text-xs transition-all">EML Upload</button>
+        <button id="tab-form" onclick="switchEmailTab('form')" class="px-6 py-3 bg-white/5 border border-white/10 text-slate-400 font-black uppercase tracking-widest text-xs hover:text-primary transition-all">Manual Input</button>
+    </div>
+
+    <!-- EML Upload Section -->
+    <div id="email-upload-section" class="bg-black border border-white/10 p-8 shadow-[0_0_30px_rgba(242,13,32,0.1)] relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
+        <form id="email-upload-form" enctype="multipart/form-data" onsubmit="return false;">
+            <div id="email-drop-zone" class="border-2 border-dashed border-white/10 p-12 text-center hover:border-primary/50 transition-colors cursor-pointer relative">
+                <input type="file" id="email-file-input" accept=".eml,.msg,.txt" onchange="handleEmailFile(this)" class="absolute inset-0 opacity-0 cursor-pointer"/>
+                <span class="material-symbols-outlined text-primary/30 text-6xl mb-4 block">cloud_upload</span>
+                <p class="text-slate-400 text-sm uppercase tracking-widest font-bold">Drag & Drop or Click to Browse</p>
+                <p class="text-[10px] text-slate-600 mt-2 uppercase tracking-widest">Accepts .eml files (Gmail → Show Original → Download)</p>
+                <p id="email-file-name" class="text-primary font-bold mt-4" style="display:none"></p>
+            </div>
+            <div class="mt-6">
+                <button type="submit" id="email-upload-btn" onclick="scanEmailFile()" disabled class="bg-primary hover:bg-red-700 disabled:opacity-30 disabled:cursor-not-allowed text-white px-8 py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all">
+                    <span class="material-symbols-outlined">shield</span>
+                    Analyze Email
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Manual Form Section -->
+    <div id="email-form-section" style="display:none" class="bg-black border border-white/10 p-8 shadow-[0_0_30px_rgba(242,13,32,0.1)] relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
+        <form id="email-manual-form" onsubmit="return false;" class="space-y-4">
+            <div>
+                <label class="text-[10px] text-slate-500 uppercase tracking-widest font-bold block mb-2">Sender Email</label>
+                <input id="email-sender" class="w-full py-4 px-4 bg-[#111] border border-white/5 focus:border-primary focus:ring-1 focus:ring-primary text-white" placeholder="sender@suspicious-domain.com" type="email"/>
+            </div>
+            <div>
+                <label class="text-[10px] text-slate-500 uppercase tracking-widest font-bold block mb-2">Subject</label>
+                <input id="email-subject" class="w-full py-4 px-4 bg-[#111] border border-white/5 focus:border-primary focus:ring-1 focus:ring-primary text-white" placeholder="URGENT: Verify your account now!" type="text"/>
+            </div>
+            <div>
+                <label class="text-[10px] text-slate-500 uppercase tracking-widest font-bold block mb-2">Email Body</label>
+                <textarea id="email-body" class="w-full py-4 px-4 bg-[#111] border border-white/5 focus:border-primary focus:ring-1 focus:ring-primary text-white min-h-[120px]" placeholder="Paste the email body content here..."></textarea>
+            </div>
+            <button type="submit" id="email-form-btn" onclick="scanEmailForm()" class="bg-primary hover:bg-red-700 text-white px-8 py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all">
+                <span class="material-symbols-outlined">shield</span>
+                Analyze Email
+            </button>
+        </form>
+    </div>
+
+    <div class="spinner" id="email-spinner"></div>
+
+    <!-- Results -->
+    <div id="email-results" style="display:none" class="space-y-6">
+        <!-- Score -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-black border border-primary/30 p-8 flex flex-col items-center justify-center text-center relative">
+                <div class="absolute top-0 right-0 p-2"><div class="size-2 bg-primary animate-pulse"></div></div>
+                <div class="relative size-48">
+                    <svg class="size-full" viewBox="0 0 36 36">
+                        <circle class="stroke-white/5" cx="18" cy="18" fill="none" r="16" stroke-width="3"></circle>
+                        <circle id="email-meter-circle" class="stroke-primary" cx="18" cy="18" fill="none" r="16" stroke-dasharray="0, 100" stroke-linecap="butt" stroke-width="3" transform="rotate(-90 18 18)"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span id="email-score" class="text-6xl font-black text-primary italic tracking-tighter">0</span>
+                        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Threat Level</span>
+                    </div>
+                </div>
+                <div id="email-verdict-badge" class="mt-6 w-full px-4 py-2 bg-primary/20 text-primary font-black italic border border-primary/30 uppercase tracking-wider text-sm text-center"></div>
+            </div>
+            <div class="lg:col-span-2 space-y-4">
+                <!-- Protocol Headers -->
+                <div class="bg-black border border-white/10 p-6">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/5 pb-2">
+                        <span class="material-symbols-outlined text-primary">vpn_key</span>
+                        <h3 class="font-bold uppercase tracking-widest text-sm">Protocol Headers</h3>
+                    </div>
+                    <ul id="email-checks-list" class="space-y-2 text-xs"></ul>
+                </div>
+                <!-- AI Analysis -->
+                <div class="bg-black border border-white/10 p-6">
+                    <div class="flex items-center gap-3 mb-3 border-b border-white/5 pb-2">
+                        <span class="material-symbols-outlined text-primary">psychology</span>
+                        <h3 class="font-bold uppercase tracking-widest text-sm">Core Neural Report</h3>
+                    </div>
+                    <p id="email-gemini-analysis" class="text-xs text-slate-400 font-medium leading-relaxed">"Awaiting scan..." — <span class="text-primary font-bold">GEMINI AI</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const dropZone = document.getElementById('email-drop-zone');
+    if (dropZone) {
+        ['dragenter','dragover'].forEach(e => { dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.add('border-primary/50'); }); });
+        ['dragleave','drop'].forEach(e => { dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.remove('border-primary/50'); }); });
+        dropZone.addEventListener('drop', ev => { const f=ev.dataTransfer.files[0]; if(f){document.getElementById('email-file-input').files=ev.dataTransfer.files;handleEmailFile(document.getElementById('email-file-input'));} });
+    }
+</script>
+{% endblock %}

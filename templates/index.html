@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <section class="grid lg:grid-cols-2 gap-12 items-center py-10">
+        <div class="space-y-6">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-sm bg-primary/10 border border-primary/30 text-primary text-[10px] font-bold uppercase tracking-[0.2em]">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+                System Shield Online
+            </div>
+            <h1 class="text-5xl lg:text-7xl font-black leading-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-primary/50 italic uppercase tracking-tighter">
+                Detect Phishing.<br/>Before It Hits.
+            </h1>
+            <p class="text-lg text-slate-400 max-w-lg leading-relaxed font-light">
+                High-performance AI protection layer against malicious redirects, data spoofing, and automated social engineering threats.
+            </p>
+            <div class="flex flex-wrap gap-4 pt-4">
+                <a href="/url" class="px-8 py-4 bg-primary text-white font-black uppercase tracking-widest rounded-sm shadow-xl shadow-primary/20 hover:bg-red-700 transition-all flex items-center gap-2 transform -skew-x-12">
+                    <span class="material-symbols-outlined skew-x-12">bolt</span>
+                    <span class="skew-x-12">Scan System</span>
+                </a>
+                <a href="/history" class="px-8 py-4 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest rounded-sm hover:bg-white/10 transition-colors transform -skew-x-12">
+                    <span class="skew-x-12">History</span>
+                </a>
+            </div>
+        </div>
+        <div class="relative hidden lg:block">
+            <div class="aspect-square glass rounded-lg glow-red flex items-center justify-center p-8 overflow-hidden border-2 border-primary/20">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"></div>
+                <div class="relative z-10 text-center">
+                    <span class="material-symbols-outlined text-primary text-[120px] opacity-30">security</span>
+                </div>
+            </div>
+            <!-- Floating Badge -->
+            <div class="absolute -bottom-6 -left-6 glass p-6 rounded-sm border-l-4 border-primary shadow-2xl">
+                <div class="flex items-center gap-4">
+                    <div class="bg-primary/20 p-3 rounded-sm text-primary">
+                        <span class="material-symbols-outlined">verified_user</span>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-500 uppercase font-black tracking-[0.2em]">GX Defense</p>
+                        <p class="text-lg font-bold text-white italic">100% ACTIVE</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Grid -->
+    <section class="space-y-6">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-black uppercase tracking-widest italic">Live Telemetry</h2>
+            <span class="text-[10px] text-slate-500 uppercase tracking-widest">Cycle: 24H</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass p-6 rounded-sm border-l-2 border-primary bg-gradient-to-r from-primary/5 to-transparent">
+                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Total Scans</p>
+                <div class="flex items-end justify-between mt-2">
+                    <h3 class="text-3xl font-black text-white italic" id="stat-total">0</h3>
+                </div>
+            </div>
+            <div class="glass p-6 rounded-sm border-l-2 border-primary bg-gradient-to-r from-primary/5 to-transparent">
+                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Threats Caught</p>
+                <div class="flex items-end justify-between mt-2">
+                    <h3 class="text-3xl font-black text-primary italic" id="stat-phishing">0</h3>
+                </div>
+            </div>
+            <div class="glass p-6 rounded-sm border-l-2 border-primary bg-gradient-to-r from-primary/5 to-transparent">
+                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Verified Safe</p>
+                <div class="flex items-end justify-between mt-2">
+                    <h3 class="text-3xl font-black text-white italic" id="stat-safe">0</h3>
+                </div>
+            </div>
+            <div class="glass p-6 rounded-sm border-l-2 border-primary bg-gradient-to-r from-primary/5 to-transparent">
+                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Suspicious</p>
+                <div class="flex items-end justify-between mt-2">
+                    <h3 class="text-3xl font-black text-primary italic" id="stat-suspicious">0</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="grid md:grid-cols-3 gap-6">
+        <a href="/url" class="glass p-8 rounded-sm group hover:border-primary transition-all duration-300 relative overflow-hidden no-underline text-inherit">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-primary/5 -mr-8 -mt-8 rotate-45 group-hover:bg-primary/20 transition-all"></div>
+            <div class="w-14 h-14 rounded-sm bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-all transform group-hover:rotate-12">
+                <span class="material-symbols-outlined text-3xl">link</span>
+            </div>
+            <h3 class="text-lg font-black uppercase italic mb-3">URL Scanner</h3>
+            <p class="text-slate-400 text-sm leading-relaxed mb-6 font-light">Deep heuristic analysis for malicious redirects and zero-day typosquatting domains.</p>
+            <div class="w-full py-3 rounded-sm bg-primary/10 text-primary font-black uppercase tracking-widest text-xs text-center hover:bg-primary hover:text-white transition-all transform -skew-x-6">
+                <span class="skew-x-6">Scan URL</span>
+            </div>
+        </a>
+        <a href="/email" class="glass p-8 rounded-sm group hover:border-primary transition-all duration-300 relative overflow-hidden no-underline text-inherit">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-primary/5 -mr-8 -mt-8 rotate-45 group-hover:bg-primary/20 transition-all"></div>
+            <div class="w-14 h-14 rounded-sm bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-all transform group-hover:rotate-12">
+                <span class="material-symbols-outlined text-3xl">mail</span>
+            </div>
+            <h3 class="text-lg font-black uppercase italic mb-3">Email Shield</h3>
+            <p class="text-slate-400 text-sm leading-relaxed mb-6 font-light">Analyze headers and sender authenticity to neutralize sophisticated spoofing attempts.</p>
+            <div class="w-full py-3 rounded-sm bg-primary/10 text-primary font-black uppercase tracking-widest text-xs text-center hover:bg-primary hover:text-white transition-all transform -skew-x-6">
+                <span class="skew-x-6">Analyze Mail</span>
+            </div>
+        </a>
+        <a href="/sms" class="glass p-8 rounded-sm group hover:border-primary transition-all duration-300 relative overflow-hidden no-underline text-inherit">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-primary/5 -mr-8 -mt-8 rotate-45 group-hover:bg-primary/20 transition-all"></div>
+            <div class="w-14 h-14 rounded-sm bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-all transform group-hover:rotate-12">
+                <span class="material-symbols-outlined text-3xl">sms</span>
+            </div>
+            <h3 class="text-lg font-black uppercase italic mb-3">SMS Protection</h3>
+            <p class="text-slate-400 text-sm leading-relaxed mb-6 font-light">Real-time protection against smishing patterns and high-risk embedded mobile links.</p>
+            <div class="w-full py-3 rounded-sm bg-primary/10 text-primary font-black uppercase tracking-widest text-xs text-center hover:bg-primary hover:text-white transition-all transform -skew-x-6">
+                <span class="skew-x-6">Check SMS</span>
+            </div>
+        </a>
+    </section>
+
+    <!-- Recent Operations -->
+    <section class="space-y-6">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-black uppercase tracking-widest italic">Recent Operations</h2>
+            <a href="/history" class="text-primary font-black text-xs uppercase tracking-widest hover:underline">View All</a>
+        </div>
+        <div class="glass rounded-sm overflow-hidden border-t-2 border-primary">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-primary/5 border-b border-white/5">
+                        <tr>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">TYPE</th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">TARGET</th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">THREAT_LVL</th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">VERDICT</th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">TIME</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5" id="recent-ops-body">
+                        <tr><td colspan="5" class="px-6 py-12 text-center text-slate-500 text-xs uppercase tracking-widest">No operations yet — start scanning</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => { loadDashboardStats(); loadRecentOps(); });
+</script>
+{% endblock %}
