@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Scan History{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center gap-2 text-xs text-slate-500 uppercase tracking-widest">
+        <a class="hover:text-primary transition-colors" href="/">Dashboard</a>
+        <span class="material-symbols-outlined text-[10px]">chevron_right</span>
+        <span class="text-primary font-bold">Scan History</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="border-l-4 border-primary pl-6">
+        <h1 class="text-5xl font-black mb-2 uppercase italic tracking-tighter">Scan History</h1>
+        <p class="text-slate-400 text-lg">Audit log of all processed URLs, email headers, and SMS messages.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass p-6 rounded-sm border-l-2 border-primary bg-gradient-to-r from-primary/5 to-transparent">
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Total Scans</p>
+            <h3 class="text-3xl font-black text-white italic mt-2" id="hist-total">0</h3>
+        </div>
+        <div class="glass p-6 rounded-sm border-l-2 border-primary bg-gradient-to-r from-primary/5 to-transparent">
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Phishing Detected</p>
+            <h3 class="text-3xl font-black text-primary italic mt-2" id="hist-phishing">0</h3>
+        </div>
+        <div class="glass p-6 rounded-sm border-l-2 border-primary bg-gradient-to-r from-primary/5 to-transparent">
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Suspicious</p>
+            <h3 class="text-3xl font-black text-primary/70 italic mt-2" id="hist-suspicious">0</h3>
+        </div>
+        <div class="glass p-6 rounded-sm border-l-2 border-primary bg-gradient-to-r from-primary/5 to-transparent">
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Verified Safe</p>
+            <h3 class="text-3xl font-black text-white italic mt-2" id="hist-safe">0</h3>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-black border border-white/10 p-6">
+            <div class="flex items-center gap-3 mb-4 border-b border-white/5 pb-2">
+                <span class="material-symbols-outlined text-primary">timeline</span>
+                <h3 class="font-bold uppercase tracking-widest text-sm">Scan Activity</h3>
+            </div>
+            <div class="h-64"><canvas id="activity-chart"></canvas></div>
+        </div>
+        <div class="bg-black border border-white/10 p-6">
+            <div class="flex items-center gap-3 mb-4 border-b border-white/5 pb-2">
+                <span class="material-symbols-outlined text-primary">pie_chart</span>
+                <h3 class="font-bold uppercase tracking-widest text-sm">Verdict Distribution</h3>
+            </div>
+            <div class="h-64"><canvas id="verdict-chart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="glass rounded-sm overflow-hidden border-t-2 border-primary">
+        <div class="flex items-center justify-between p-4 bg-primary/5 border-b border-white/5">
+            <h3 class="font-bold uppercase tracking-widest text-sm">All Scans</h3>
+            <span id="history-count" class="text-[10px] text-slate-500 uppercase tracking-widest"></span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="border-b border-white/5">
+                    <tr>
+                        <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">ID</th>
+                        <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">TYPE</th>
+                        <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">TARGET</th>
+                        <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">THREAT_LVL</th>
+                        <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">VERDICT</th>
+                        <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">DATE</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body" class="divide-y divide-white/5">
+                    <tr><td colspan="6" class="px-6 py-12 text-center text-slate-500 text-xs uppercase tracking-widest">No scans yet — start scanning to build your audit log</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="history-pagination" class="flex justify-center gap-2 p-4"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => { loadHistoryPage(); loadHistoryStats(); initHistoryCharts(); });
+</script>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}SMS Scanner{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center gap-2 text-xs text-slate-500 uppercase tracking-widest">
+        <a class="hover:text-primary transition-colors" href="/">Dashboard</a>
+        <span class="material-symbols-outlined text-[10px]">chevron_right</span>
+        <span class="text-primary font-bold">SMS Scanner</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="border-l-4 border-primary pl-6">
+        <h1 class="text-5xl font-black mb-2 uppercase italic tracking-tighter">SMS Scanner</h1>
+        <p class="text-slate-400 text-lg">Paste suspicious message details for instant AI-powered threat analysis.</p>
+    </div>
+
+    <!-- Input Section -->
+    <div class="bg-black border border-white/10 p-8 shadow-[0_0_30px_rgba(242,13,32,0.1)] relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
+        <form id="sms-scan-form" onsubmit="return false;" class="space-y-4">
+            <div>
+                <label class="text-[10px] text-slate-500 uppercase tracking-widest font-bold block mb-2">Sender Number (optional)</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">call</span>
+                    <input id="sms-sender" class="w-full pl-12 py-4 pr-4 bg-[#111] border border-white/5 focus:border-primary focus:ring-1 focus:ring-primary text-white" placeholder="+1 234 567 8900 or short code" type="text"/>
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] text-slate-500 uppercase tracking-widest font-bold block mb-2">Message Content</label>
+                <textarea id="sms-message" class="w-full py-4 px-4 bg-[#111] border border-white/5 focus:border-primary focus:ring-1 focus:ring-primary text-white min-h-[140px]" placeholder='Paste the SMS message here... e.g. "URGENT: Your account has been compromised! Click http://bit.ly/fix-now to verify"' rows="5"></textarea>
+            </div>
+            <button type="submit" id="sms-scan-btn" onclick="scanSMS()" class="bg-primary hover:bg-red-700 text-white px-8 py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all transform hover:translate-x-1">
+                <span class="material-symbols-outlined">radar</span>
+                Analyze Message
+            </button>
+        </form>
+        <div class="spinner" id="sms-spinner"></div>
+    </div>
+
+    <!-- Results -->
+    <div id="sms-results" style="display:none" class="space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Score -->
+            <div class="bg-black border border-primary/30 p-8 flex flex-col items-center justify-center text-center relative">
+                <div class="absolute top-0 right-0 p-2"><div class="size-2 bg-primary animate-pulse"></div></div>
+                <div class="relative size-48">
+                    <svg class="size-full" viewBox="0 0 36 36">
+                        <circle class="stroke-white/5" cx="18" cy="18" fill="none" r="16" stroke-width="3"></circle>
+                        <circle id="sms-meter-circle" class="stroke-primary" cx="18" cy="18" fill="none" r="16" stroke-dasharray="0, 100" stroke-linecap="butt" stroke-width="3" transform="rotate(-90 18 18)"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span id="sms-score" class="text-6xl font-black text-primary italic tracking-tighter">0</span>
+                        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Risk Score</span>
+                    </div>
+                </div>
+                <div id="sms-verdict-badge" class="mt-6 w-full px-4 py-2 bg-primary/20 text-primary font-black italic border border-primary/30 uppercase tracking-wider text-sm text-center"></div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-4">
+                <!-- Content Analysis -->
+                <div class="bg-black border border-white/10 p-6">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/5 pb-2">
+                        <span class="material-symbols-outlined text-primary">content_paste_search</span>
+                        <h3 class="font-bold uppercase tracking-widest text-sm">Content Analysis</h3>
+                    </div>
+                    <div id="sms-content-preview" class="p-4 bg-white/5 border border-white/5 mb-4 text-xs text-slate-400 italic"></div>
+                    <ul id="sms-checks-list" class="space-y-2 text-xs"></ul>
+                </div>
+
+                <!-- Link Analysis -->
+                <div class="bg-black border border-white/10 p-6">
+                    <div class="flex items-center gap-3 mb-3 border-b border-white/5 pb-2">
+                        <span class="material-symbols-outlined text-primary">link</span>
+                        <h3 class="font-bold uppercase tracking-widest text-sm">Link Analysis</h3>
+                    </div>
+                    <ul id="sms-links-list" class="space-y-2 text-xs">
+                        <li class="text-slate-600 uppercase tracking-widest text-[10px]">No links found</li>
+                    </ul>
+                </div>
+
+                <!-- AI Analysis -->
+                <div class="bg-black border border-white/10 p-6">
+                    <div class="flex items-center gap-3 mb-3 border-b border-white/5 pb-2">
+                        <span class="material-symbols-outlined text-primary">psychology</span>
+                        <h3 class="font-bold uppercase tracking-widest text-sm">AI Analysis</h3>
+                    </div>
+                    <p id="sms-gemini-analysis" class="text-xs text-slate-400 font-medium leading-relaxed">"Awaiting scan..." — <span class="text-primary font-bold">GEMINI AI</span></p>
+                    <div class="mt-4 p-4 bg-primary/5 border border-primary/20">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Recommended Action</p>
+                        <p id="sms-recommendation-text" class="text-xs text-slate-300"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

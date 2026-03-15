@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}URL Scanner{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center gap-2 text-xs text-slate-500 uppercase tracking-widest">
+        <a class="hover:text-primary transition-colors" href="/">Dashboard</a>
+        <span class="material-symbols-outlined text-[10px]">chevron_right</span>
+        <span class="text-primary font-bold">URL Scanner</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="border-l-4 border-primary pl-6">
+        <h1 class="text-5xl font-black mb-2 uppercase italic tracking-tighter">URL Scanner</h1>
+        <p class="text-slate-400 text-lg">Analyze any URL for potential phishing threats instantly with our multi-engine AI system.</p>
+    </div>
+
+    <!-- Input Section -->
+    <div class="bg-black border border-white/10 p-8 shadow-[0_0_30px_rgba(242,13,32,0.1)] relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
+        <form id="url-scan-form" onsubmit="return false;">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-grow relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">link</span>
+                    <input id="url-input" class="w-full pl-12 pr-4 py-4 bg-[#111] border border-white/5 focus:border-primary focus:ring-1 focus:ring-primary text-lg text-white" placeholder="Enter a suspicious URL (e.g., https://secure-login-bank.com)..." type="text" required/>
+                </div>
+                <button type="submit" id="url-scan-btn" onclick="scanURL()" class="bg-primary hover:bg-red-700 text-white px-8 py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all transform hover:translate-x-1">
+                    <span class="material-symbols-outlined">search_check</span>
+                    Analyze
+                </button>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-2 items-center">
+                <span class="text-[10px] text-slate-500 uppercase tracking-widest mr-2 font-bold">Quick scans:</span>
+                <button type="button" onclick="document.getElementById('url-input').value='http://paypal-security.net/verify';scanURL()" class="px-3 py-1 border border-primary/40 bg-primary/5 text-[10px] text-primary hover:bg-primary/20 uppercase tracking-tighter">paypal-security.net</button>
+                <button type="button" onclick="document.getElementById('url-input').value='http://verify-account-info.io/login';scanURL()" class="px-3 py-1 border border-primary/40 bg-primary/5 text-[10px] text-primary hover:bg-primary/20 uppercase tracking-tighter">verify-account-info.io</button>
+                <button type="button" onclick="document.getElementById('url-input').value='http://bit.ly/secure-redirect';scanURL()" class="px-3 py-1 border border-primary/40 bg-primary/5 text-[10px] text-primary hover:bg-primary/20 uppercase tracking-tighter">bit.ly/secure-redirect</button>
+            </div>
+        </form>
+        <div class="spinner" id="url-spinner"></div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="url-results" style="display:none" class="space-y-8">
+        <!-- Score Overview -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1 bg-black border border-primary/30 p-8 flex flex-col items-center justify-center text-center relative">
+                <div class="absolute top-0 right-0 p-2"><div class="size-2 bg-primary animate-pulse"></div></div>
+                <div class="relative size-48">
+                    <svg class="size-full" viewBox="0 0 36 36">
+                        <circle class="stroke-white/5" cx="18" cy="18" fill="none" r="16" stroke-width="3"></circle>
+                        <circle id="url-meter-circle" class="stroke-primary" cx="18" cy="18" fill="none" r="16" stroke-dasharray="0, 100" stroke-linecap="butt" stroke-width="3" transform="rotate(-90 18 18)"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span id="url-score" class="text-6xl font-black text-primary italic tracking-tighter">0</span>
+                        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Risk Score</span>
+                    </div>
+                </div>
+                <div class="mt-6 w-full">
+                    <div id="url-verdict-badge" class="px-4 py-2 bg-primary/20 text-primary font-black italic border border-primary/30 mb-2 uppercase tracking-wider text-sm text-center"></div>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest">Scan Latency: ~1.2s</p>
+                </div>
+            </div>
+            <div class="lg:col-span-2 space-y-4">
+                <!-- Rule-Based Checks -->
+                <div class="bg-black border border-white/10 p-6">
+                    <div class="flex items-center gap-3 mb-4 border-b border-white/5 pb-2">
+                        <span class="material-symbols-outlined text-primary">rule</span>
+                        <h3 class="font-bold uppercase tracking-widest text-sm">Rule-Based Checks</h3>
+                    </div>
+                    <ul id="url-checks-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs"></ul>
+                </div>
+                <!-- ML + AI -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-black border border-white/10 p-6 group hover:border-primary/50 transition-all">
+                        <div class="flex items-center gap-3 mb-3 border-b border-white/5 pb-2">
+                            <span class="material-symbols-outlined text-primary">model_training</span>
+                            <h3 class="font-bold uppercase tracking-widest text-sm">ML Prediction</h3>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <div>
+                                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Classifier Engine V4.2</p>
+                                <p id="url-ml-prob" class="text-3xl font-black text-primary italic">0% PROB</p>
+                            </div>
+                            <div class="text-primary/20"><span class="material-symbols-outlined text-4xl">warning</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-black border border-white/10 p-6">
+                        <div class="flex items-center gap-3 mb-3 border-b border-white/5 pb-2">
+                            <span class="material-symbols-outlined text-primary">psychology</span>
+                            <h3 class="font-bold uppercase tracking-widest text-sm">AI Analysis</h3>
+                        </div>
+                        <p id="url-gemini-analysis" class="text-xs text-slate-400 font-medium leading-relaxed">"Awaiting scan..." — <span class="text-primary font-bold">GEMINI AI</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Scan Button -->
+        <div class="flex justify-center pt-4">
+            <button onclick="document.getElementById('url-results').style.display='none';document.getElementById('url-input').value='';document.getElementById('url-input').focus();" class="flex items-center gap-2 px-8 py-4 bg-black border border-primary hover:bg-primary hover:text-white transition-all text-xs font-black uppercase tracking-[0.2em] italic group">
+                <span class="material-symbols-outlined text-lg group-hover:rotate-180 transition-transform duration-500">refresh</span>
+                Initialize New Scan
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

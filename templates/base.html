@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% block title %}PhishGuard{% endblock %} | EASE THE ERROR</title>
+    <meta name="description" content="AI-powered phishing detection for URLs, emails, and SMS messages.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f20d20",
+                        "background-light": "#0a0a0a",
+                        "background-dark": "#050505",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.375rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: "Space Grotesk", sans-serif;
+            background-color: #050505;
+        }
+        .noise-bg {
+            background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuALqYBxAxh9x6LG-CaXedSkv3sOrUaakxjmMGaacuYmpAsdes2Nu6m-BuP8PiW6OvDtgzBASA3xhuFR7RbGWwJfFl6EO35juBk7bc4vmmKOEyF6HkUmtDFsbsoDS8LviHQ8t2f00yqt0gATcJo7LkG-jY2vo87WV4aiHnMhOyaWNtZyWU600fVjqsVkyNKDYEjTHg4gUaWOkcbXCRq7L7L1FQ8QhL-uFmLRN4ILnVUuBdCrUHAw7981P5Ew2tloOdS1qMRPUJneZicP);
+            opacity: 0.02;
+        }
+        .glass {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(242, 13, 32, 0.15);
+        }
+        .glow-red {
+            box-shadow: 0 0 40px -10px rgba(242, 13, 32, 0.2);
+        }
+        .gx-border {
+            border-image: linear-gradient(to right, #f20d20, transparent) 1;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #f20d20; border-radius: 4px; }
+        .spinner {
+            display: none;
+            width: 40px; height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #f20d20;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 24px auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-background-dark font-display text-slate-100 min-h-screen relative overflow-x-hidden">
+    <div class="fixed inset-0 noise-bg pointer-events-none"></div>
+    <!-- Background Blobs -->
+    <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[150px] pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[150px] pointer-events-none"></div>
+
+    <div class="relative z-10 flex flex-col min-h-screen">
+        <!-- Top Navbar -->
+        <nav class="border-b border-primary/20 bg-black/80 backdrop-blur-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16 items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-3xl">shield</span>
+                        <span class="text-xl font-bold tracking-tighter text-white">PHISHGUARD<span class="text-primary">_</span></span>
+                    </div>
+                    <div class="hidden md:flex items-center gap-8">
+                        <a class="{% if active == 'dashboard' %}text-primary font-bold{% else %}text-slate-400 hover:text-primary{% endif %} transition-colors text-xs uppercase tracking-widest" href="/">Dashboard</a>
+                        <a class="{% if active == 'url' %}text-primary font-bold{% else %}text-slate-400 hover:text-primary{% endif %} transition-colors text-xs uppercase tracking-widest" href="/url">URL Scanner</a>
+                        <a class="{% if active == 'email' %}text-primary font-bold{% else %}text-slate-400 hover:text-primary{% endif %} transition-colors text-xs uppercase tracking-widest" href="/email">Email Scanner</a>
+                        <a class="{% if active == 'sms' %}text-primary font-bold{% else %}text-slate-400 hover:text-primary{% endif %} transition-colors text-xs uppercase tracking-widest" href="/sms">SMS Scanner</a>
+                        <a class="{% if active == 'history' %}text-primary font-bold{% else %}text-slate-400 hover:text-primary{% endif %} transition-colors text-xs uppercase tracking-widest" href="/history">History</a>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button class="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                            <span class="material-symbols-outlined text-xl">notifications</span>
+                        </button>
+                        <div class="h-8 w-8 rounded-sm bg-gradient-to-tr from-primary to-red-900 border border-primary/50"></div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-white/5 bg-black/50 mt-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-2xl">shield</span>
+                        <span class="text-sm font-black tracking-widest uppercase">PHISHGUARD <span class="text-primary">© 2025</span></span>
+                    </div>
+                    <div class="flex items-center gap-8">
+                        <a class="text-slate-500 hover:text-primary transition-colors text-[10px] font-black uppercase tracking-widest" href="#">GitHub</a>
+                        <a class="text-slate-500 hover:text-primary transition-colors text-[10px] font-black uppercase tracking-widest" href="#">About</a>
+                        <a class="text-slate-500 hover:text-primary transition-colors text-[10px] font-black uppercase tracking-widest" href="#">Privacy</a>
+                        <a class="text-slate-500 hover:text-primary transition-colors text-[10px] font-black uppercase tracking-widest" href="#">API</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
