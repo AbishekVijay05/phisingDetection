@@ -14,7 +14,7 @@ def _get_client():
         return None
     
     # Try GEMINI_API_KEY first as per project config, then fallback to GOOGLE_API_KEY
-    api_key = "AIzaSyBBq_tyC53QkoaTUK-mUaOScfsUQ1Z7918"
+    api_key = "YOUR_API_KEY_HERE"
     if not api_key:
         return None
         
