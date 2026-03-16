@@ -13,8 +13,8 @@ def _get_client():
     if not GENAI_AVAILABLE:
         return None
     
-    # Try GEMINI_API_KEY first as per project config, then fallback to GOOGLE_API_KEY
-    api_key = "AIzaSyDCAMIn186DgV79ji0Alr0lwdtSHmj56xM"
+    # Try GEMINI_API_KEY from environment (populated from .env)
+    api_key = os.environ.get('GEMINI_API_KEY')
     if not api_key:
         return None
         

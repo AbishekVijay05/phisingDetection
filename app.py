@@ -1,5 +1,10 @@
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
 from config import Config
 from models import db, Scan
 from detectors.url_analyzer import analyze_url
