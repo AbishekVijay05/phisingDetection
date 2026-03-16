@@ -1,0 +1,1 @@
+["url_length", "path_length", "dot_count", "hyphen_count", "underscore_count", "slash_count", "question_count", "equal_count", "at_count", "digit_count", "letter_count", "digit_ratio", "vowel_count", "vowel_ratio", "has_ip", "subdomain_len", "domain_len", "sus_tld", "sus_keyword_count", "char_diversity"]

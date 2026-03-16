@@ -1,6 +1,69 @@
 import re
 import math
+import os
+import json
+import logging
+import joblib
+import tldextract
+import numpy as np
+import pandas as pd
 from urllib.parse import urlparse
+
+# ========================
+# LOGGING SETUP
+# ========================
+logger = logging.getLogger('phishguard.url_analyzer')
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='[%(levelname)s] %(name)s: %(message)s'
+)
+
+# ========================
+# LOAD ML MODEL + FEATURE NAMES
+# ========================
+MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'models', 'pro_phishing_model.pkl')
+FEATURES_PATH = os.path.join(os.path.dirname(__file__), '..', 'models', 'pro_features.json')
+
+# Load the canonical feature names saved during training
+try:
+    with open(FEATURES_PATH, 'r') as f:
+        EXPECTED_FEATURES = json.load(f)
+    logger.info(f"Loaded {len(EXPECTED_FEATURES)} canonical feature names from pro_features.json: {EXPECTED_FEATURES}")
+except Exception as e:
+    logger.error(f"Could not load feature names from {FEATURES_PATH}: {e}")
+    EXPECTED_FEATURES = None
+
+# Load the trained Pro ML model (HistGradientBoostingClassifier)
+try:
+    url_model = joblib.load(MODEL_PATH)
+    logger.info(f"Loaded ML model from {MODEL_PATH} — type: {type(url_model).__name__}")
+    if hasattr(url_model, 'n_features_in_'):
+        logger.info(f"Model expects {url_model.n_features_in_} features")
+        if EXPECTED_FEATURES and len(EXPECTED_FEATURES) != url_model.n_features_in_:
+            logger.error(f"MISMATCH: pro_features.json has {len(EXPECTED_FEATURES)} features but model expects {url_model.n_features_in_}")
+except Exception as e:
+    logger.error(f"Could not load URL model: {e}")
+    url_model = None
+
+# ========================
+# CONSTANTS
+# ========================
+
+# Well-known legitimate domains — used to cap false-positive risk
+WELL_KNOWN_DOMAINS = {
+    'google.com', 'www.google.com', 'youtube.com', 'www.youtube.com',
+    'facebook.com', 'www.facebook.com', 'instagram.com', 'www.instagram.com',
+    'twitter.com', 'www.twitter.com', 'x.com',
+    'amazon.com', 'www.amazon.com', 'amazon.in', 'www.amazon.in',
+    'microsoft.com', 'www.microsoft.com', 'linkedin.com', 'www.linkedin.com',
+    'apple.com', 'www.apple.com', 'netflix.com', 'www.netflix.com',
+    'github.com', 'www.github.com', 'stackoverflow.com',
+    'wikipedia.org', 'en.wikipedia.org',
+    'reddit.com', 'www.reddit.com',
+    'whatsapp.com', 'web.whatsapp.com',
+    'paypal.com', 'www.paypal.com',
+    'mail.google.com', 'accounts.google.com', 'drive.google.com',
+}
 
 # Common suspicious TLDs
 SUSPICIOUS_TLDS = {'.tk', '.ml', '.ga', '.cf', '.gq', '.xyz', '.top', '.club', '.work', '.buzz', '.info', '.click', '.link', '.win', '.bid', '.stream', '.racing', '.icu', '.monster'}
@@ -50,7 +113,7 @@ def calculate_entropy(text):
 
 
 def extract_url_features(url):
-    """Extract 25+ features from a URL for phishing analysis."""
+    """Extract 25+ features from a URL for phishing analysis (rule-based layer)."""
     features = {}
     checks = []
 
@@ -80,7 +143,7 @@ def extract_url_features(url):
         checks.append({'name': 'Excessive Dots', 'status': 'fail', 'detail': f'{dot_count} dots found'})
 
     # 3. Special characters
-    special_chars = len(re.findall(r'[@!#\$%\^&\*\(\)\+\=\[\]\{\}\|\\<>\?]', full_url))
+    special_chars = len(re.findall(r'[@!#\$%\^\&\*\(\)\+\=\[\]\{\}\|\\\<\>\?]', full_url))
     features['special_char_count'] = special_chars
     if special_chars > 2:
         checks.append({'name': 'Special Characters', 'status': 'fail', 'detail': f'{special_chars} suspicious characters'})
@@ -147,6 +210,8 @@ def extract_url_features(url):
     typosquat_brand = ''
     hostname_lower = hostname.lower()
     for brand, variants in BRAND_TARGETS.items():
+        if brand in hostname_lower:
+            continue
         for variant in variants:
             if variant in hostname_lower:
                 typosquat_detected = True
@@ -212,19 +277,189 @@ def extract_url_features(url):
     return features, checks, score
 
 
+def _extract_pro_features(url):
+    """
+    Extract the exact 20 lexical features expected by the Pro ML model.
+    
+    CRITICAL: Features are built as a named dict, then reordered to match the
+    canonical feature order saved in pro_features.json during training.
+    This prevents silent ordering bugs.
+    """
+    # Clean the URL to exactly match the training dataset preprocessing (remove http, https, www)
+    u = str(url).lower().strip()
+    if u.startswith('http://'): u = u[7:]
+    if u.startswith('https://'): u = u[8:]
+    if u.startswith('www.'): u = u[4:]
+    
+    # Build features as a named dictionary first
+    feat = {}
+    
+    # --- 1. Lengths ---
+    url_length = len(u)
+    feat['url_length'] = url_length
+    feat['path_length'] = len(u[u.find('/'):]) if '/' in u else 0
+    
+    # --- 2. Counts ---
+    feat['dot_count'] = u.count('.')
+    feat['hyphen_count'] = u.count('-')
+    feat['underscore_count'] = u.count('_')
+    feat['slash_count'] = u.count('/')
+    feat['question_count'] = u.count('?')
+    feat['equal_count'] = u.count('=')
+    feat['at_count'] = u.count('@')
+    
+    digit_count = sum(c.isdigit() for c in u)
+    feat['digit_count'] = digit_count
+    
+    letter_count = sum(c.isalpha() for c in u)
+    feat['letter_count'] = letter_count
+    
+    # --- 3. Ratios ---
+    safe_len = max(url_length, 1)
+    feat['digit_ratio'] = digit_count / safe_len
+    
+    vowels = len(re.findall(r'[aeiou]', u))
+    feat['vowel_count'] = vowels
+    feat['vowel_ratio'] = vowels / safe_len
+    
+    # --- 4. Network features ---
+    feat['has_ip'] = 1 if re.search(r'(?:\d{1,3}\.){3}\d{1,3}', u) else 0
+    
+    # --- 5. TLDs and subdomains ---
+    ext = tldextract.extract(u)
+    feat['subdomain_len'] = len(ext.subdomain)
+    feat['domain_len'] = len(ext.domain)
+    
+    sus_tlds = {'tk', 'ml', 'ga', 'cf', 'gq', 'xyz', 'top', 'club', 'work', 'buzz', 'info', 'live', 'icu', 'vip'}
+    feat['sus_tld'] = 1 if ext.suffix.lower() in sus_tlds else 0
+    
+    # --- 6. Keyword features ---
+    sus_keywords = ['login', 'signin', 'verify', 'update', 'secure', 'account', 'banking', 'confirm', 'free', 'bonus', 'claim', 'admin', 'service', 'support']
+    pattern = '|'.join(sus_keywords)
+    feat['sus_keyword_count'] = len(re.findall(pattern, u, re.IGNORECASE))
+    
+    # --- 7. Entropy approximation ---
+    feat['char_diversity'] = len(set(u)) / safe_len
+    
+    # --- CRITICAL: Reorder features to match canonical training order ---
+    if EXPECTED_FEATURES:
+        # Validate all expected features are present
+        missing = [f for f in EXPECTED_FEATURES if f not in feat]
+        if missing:
+            logger.error(f"Missing features during extraction: {missing}")
+        
+        # Build the feature vector in the exact order the model was trained with
+        feature_vector = [feat.get(name, 0) for name in EXPECTED_FEATURES]
+    else:
+        # Fallback: use dict insertion order (matches current training order)
+        logger.warning("No canonical feature order loaded — using dict insertion order")
+        feature_vector = list(feat.values())
+    
+    return feature_vector, feat
+
+
+def _is_well_known_domain(url):
+    """Check if the URL belongs to a well-known legitimate domain."""
+    try:
+        parsed = urlparse(url if '://' in url else 'http://' + url)
+        hostname = (parsed.hostname or '').lower()
+        
+        # Direct match
+        if hostname in WELL_KNOWN_DOMAINS:
+            return True
+        
+        # Also check via tldextract for subdomains of well-known domains
+        ext = tldextract.extract(url)
+        base_domain = f"{ext.domain}.{ext.suffix}".lower()
+        if base_domain in WELL_KNOWN_DOMAINS:
+            return True
+        
+        return False
+    except Exception:
+        return False
+
+
 def analyze_url(url):
-    """Full URL analysis — returns structured result."""
+    """Full URL analysis — returns structured result with debug logging."""
+    logger.info(f"{'='*60}")
+    logger.info(f"URL RECEIVED: {url}")
+    logger.info(f"{'='*60}")
+
     features, checks, rule_score = extract_url_features(url)
 
     if 'error' in features:
+        logger.error(f"Feature extraction error: {features['error']}")
         return {
             'error': features['error'],
             'risk_score': 0,
             'verdict': 'ERROR'
         }
 
-    # ML heuristic score (weighted feature combination)
-    ml_score = _ml_heuristic_score(features)
+    logger.info(f"Rule-based score: {rule_score}")
+    logger.info(f"Rule-based features extracted: {len(features)} features")
+
+    ml_score = 0
+    ml_probability = 0.0
+
+    if url_model:
+        try:
+            pro_features, feature_dict = _extract_pro_features(url)
+            
+            logger.info(f"ML Feature vector ({len(pro_features)} features): {pro_features}")
+            logger.info(f"ML Feature names → values:")
+            if EXPECTED_FEATURES:
+                for name, val in zip(EXPECTED_FEATURES, pro_features):
+                    logger.debug(f"  {name}: {val}")
+
+            # VALIDATE feature vector length matches model expectation
+            if hasattr(url_model, 'n_features_in_'):
+                expected_count = url_model.n_features_in_
+                actual_count = len(pro_features)
+                if actual_count != expected_count:
+                    logger.error(f"FEATURE COUNT MISMATCH! Model expects {expected_count}, got {actual_count}")
+                    raise ValueError(f"Feature count mismatch: expected {expected_count}, got {actual_count}")
+                logger.info(f"Feature count OK: {actual_count} == {expected_count}")
+
+            # Build a DataFrame with proper column names to avoid sklearn warnings
+            if EXPECTED_FEATURES:
+                input_df = pd.DataFrame([pro_features], columns=EXPECTED_FEATURES)
+                proba = url_model.predict_proba(input_df)[0]
+            else:
+                proba = url_model.predict_proba([pro_features])[0]
+            
+            # Find the 'phishing' class index (1)
+            classes = url_model.classes_
+            phishing_idx = list(classes).index(1) if 1 in classes else 0
+            
+            ml_probability = float(proba[phishing_idx])
+            
+            logger.info(f"Model classes: {list(classes)}")
+            logger.info(f"Raw probabilities: {list(proba)}")
+            logger.info(f"Phishing probability: {ml_probability:.4f}")
+
+            # Apply well-known domain confidence adjustment
+            if _is_well_known_domain(url):
+                original_prob = ml_probability
+                ml_probability = min(ml_probability, 0.05)  # Cap at 5% for known-good domains
+                logger.info(f"Well-known domain detected — ML probability adjusted: {original_prob:.4f} → {ml_probability:.4f}")
+
+            ml_score = int(ml_probability * 100)
+            
+            logger.info(f"Final ML score: {ml_score}")
+
+        except Exception as e:
+            logger.error(f"Model prediction error: {e}", exc_info=True)
+            ml_score = _ml_heuristic_score(features)
+            ml_probability = min(ml_score / 100, 0.99)
+            logger.info(f"Fallback to heuristic ML score: {ml_score}")
+    else:
+        # ML heuristic score (fallback for no trained model)
+        logger.warning("No ML model loaded — using heuristic scoring")
+        ml_score = _ml_heuristic_score(features)
+        ml_probability = min(ml_score / 100, 0.99)
+
+    logger.info(f"FINAL RESULT — Rule: {rule_score}, ML: {ml_score} (prob: {ml_probability:.4f})")
+    logger.info(f"{'='*60}")
 
     return {
         'url': url,
@@ -232,7 +467,7 @@ def analyze_url(url):
         'checks': checks,
         'rule_score': rule_score,
         'ml_score': ml_score,
-        'ml_probability': min(ml_score / 100, 0.99),
+        'ml_probability': ml_probability,
     }
 
 

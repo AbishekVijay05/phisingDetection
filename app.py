@@ -8,7 +8,12 @@ from detectors.gemini_analyzer import analyze_url_with_gemini, analyze_email_wit
 from detectors.scoring import build_result
 import json
 import os
+import re
+import logging
 from urllib.parse import urlparse
+
+# Setup logging
+logger = logging.getLogger('phishguard.app')
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -59,6 +64,20 @@ def api_analyze_url():
     if not url:
         return jsonify({'error': 'URL is required'}), 400
 
+    # Input validation — must look like a URL
+    url_pattern = re.compile(
+        r'^(https?://)?'  # optional scheme
+        r'[a-zA-Z0-9\-.]+'  # domain or IP
+        r'(\.[a-zA-Z]{2,})'  # TLD
+        r'(/.*)?$'  # optional path
+    , re.IGNORECASE)
+    ip_pattern = re.compile(r'^(https?://)?\d{1,3}(\.\d{1,3}){3}(/.*)?$')
+    if not url_pattern.match(url) and not ip_pattern.match(url):
+        logger.warning(f"Invalid URL format rejected: {url}")
+        return jsonify({'error': 'Invalid URL format'}), 400
+
+    logger.info(f"[API] URL scan request received: {url}")
+
     # Layer 1 + 2: Rule-based + ML heuristic
     url_result = analyze_url(url)
     if 'error' in url_result:
@@ -85,6 +104,10 @@ def api_analyze_url():
             'ml_probability': url_result.get('ml_probability', 0),
         }
     )
+
+    logger.info(f"[API] RESULT for {url}: risk_score={result['risk_score']}, verdict={result['verdict']}, "
+                f"layers={{rule: {url_result['rule_score']}, ml: {url_result['ml_score']}, "
+                f"gemini: {result['layer_scores'].get('gemini_ai', 0)}}}")
 
     # Save to database
     _save_scan(result)

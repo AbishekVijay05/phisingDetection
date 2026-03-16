@@ -5,6 +5,11 @@ phishguard.db
 uploads/**
 !uploads/.gitkeep
 
+# Models and Datasets
+*.pkl
+*_Dataset/
+models/*.pkl
+
 # Python
 __pycache__/
 *.py[cod]
