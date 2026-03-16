@@ -306,6 +306,17 @@ def analyze_email_content(parsed_email):
     # Combine header/body content into a single text string for the ML model.
     ml_text = f"From: {sender}\nSubject: {subject}\n\n{body}"
     hybrid = _hybrid_ml_score(ml_text)
+    if not bool(hybrid.get("available", False)):
+        # Fallback: use the existing heuristic ML score so the UI still shows
+        # a meaningful confidence even when the hybrid artifacts aren't present.
+        heur_score = float(_email_ml_heuristic(body_lower, urgency_found, patterns_found, link_score))
+        heur_prob = max(0.0, min(1.0, heur_score / 100.0))
+        hybrid = {
+            "score": heur_score,
+            "probability": heur_prob,
+            "prediction": "PHISHING" if heur_prob >= 0.61 else "LEGITIMATE",
+            "available": False,
+        }
 
     return {
         'checks': checks,
