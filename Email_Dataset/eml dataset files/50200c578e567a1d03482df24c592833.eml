@@ -1,7 +1,0 @@
-From: "Bridgette Arroyo" <Liliana'sidolater@letterboxes.org>
-To: l..barbour@enron.com
-Subject: <img/src='javascript:{alert(/shine/);}' >
-MIME-Version: 1.0
-Content-type: text/html
-
-This is a test mail for XSS.

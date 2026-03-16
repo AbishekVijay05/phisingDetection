@@ -1,7 +1,0 @@
-From: ὬzQja簲@plg2.math.uwaterloo.ca
-To: email1866@speedy.uwaterloo.ca
-Subject: <marquee onstart=alert(/xss/)></marquee>
-MIME-Version: 1.0
-Content-type: text/html
-
-This is a test mail for XSS.

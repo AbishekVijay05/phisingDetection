@@ -1,7 +1,0 @@
-From: Rod Smith <samba@rodsbooks.com>
-To: csandhe@enron.com
-Subject: XSS Test Mail
-MIME-Version: 1.0
-Content-type: text/html
-
-xssmail<style x="㊗" y="Fuzzitup {}*{xss:expression(alert(document.domain))}">

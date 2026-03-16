@@ -1,4 +1,0 @@
-From: clare.ellis-wood@enron.com
-To: lance.shuler@enron.com
-Subject: XSS Test Mail
-&lt;img src='#' one\urror='alert(document.cookie)'&gt;

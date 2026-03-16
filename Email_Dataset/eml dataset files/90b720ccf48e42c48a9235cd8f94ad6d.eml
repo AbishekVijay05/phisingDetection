@@ -1,7 +1,0 @@
-From: jeremy.blachman@enron.com
-To: jackie.gentle@enron.com, john.sherriff@enron.com, fiona.grant@enron.com, 
-Subject: XSS Test Mail
-MIME-Version: 1.0
-Content-type: text/html
-
-xssmail<style x="㊗" y="Fuzzitup {}*{xss:expression(alert(document.domain))}">
