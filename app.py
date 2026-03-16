@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 from config import Config
 from models import db, Scan
 from detectors.url_analyzer import analyze_url
@@ -17,6 +18,9 @@ logger = logging.getLogger('phishguard.app')
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Enable CORS for browser extension API access
+CORS(app, resources={r"/analyze/*": {"origins": "*"}, r"/api/*": {"origins": "*"}})
 
 # Ensure upload folder exists
 os.makedirs(app.config.get('UPLOAD_FOLDER', 'uploads'), exist_ok=True)

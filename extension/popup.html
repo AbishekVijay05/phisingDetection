@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="popup.css"/>
+  <title>PhishGuard</title>
+</head>
+<body>
+  <div id="app" class="app-container">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="header-logo">
+          <span class="material-symbols-outlined">shield_lock</span>
+        </div>
+        <h1 class="header-title">PhishGuard</h1>
+      </div>
+      <div class="header-right">
+        <span class="auto-scan-label">Auto-Scan</span>
+        <button id="autoScanToggle" class="toggle-btn active" title="Toggle auto-scan">
+          <span class="toggle-knob"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="state-panel">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Scanning URL...</p>
+      <p id="loadingUrl" class="loading-url"></p>
+    </div>
+
+    <!-- Idle State (non-scannable pages) -->
+    <div id="idleState" class="state-panel hidden">
+      <div class="idle-icon">
+        <span class="material-symbols-outlined">shield_lock</span>
+      </div>
+      <p class="idle-title">PhishGuard Active</p>
+      <p class="idle-subtitle">Navigate to a website to begin scanning</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="state-panel hidden">
+      <div class="error-icon">
+        <span class="material-symbols-outlined">cloud_off</span>
+      </div>
+      <p class="error-title">Connection Error</p>
+      <p id="errorMessage" class="error-subtitle">Could not reach PhishGuard API</p>
+      <button id="retryBtn" class="btn-primary btn-sm">
+        <span class="material-symbols-outlined">refresh</span>
+        Retry
+      </button>
+    </div>
+
+    <!-- Results State -->
+    <div id="resultsState" class="state-panel hidden">
+      <!-- Risk Score & Verdict -->
+      <div class="score-card">
+        <div id="scoreGauge" class="gauge">
+          <div class="gauge-inner">
+            <span id="riskScore" class="gauge-score">0</span>
+            <span class="gauge-label">/ 100</span>
+          </div>
+        </div>
+        <div class="score-info">
+          <p class="score-verdict-label">Verdict</p>
+          <p id="verdict" class="score-verdict">SCANNING</p>
+          <div class="score-detail">
+            <span id="verdictIcon" class="material-symbols-outlined">hourglass_empty</span>
+            <p id="verdictMessage" class="score-detail-text">Analyzing...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scanned URL -->
+      <div class="scanned-url-bar">
+        <span class="material-symbols-outlined">link</span>
+        <span id="scannedUrl" class="scanned-url-text">—</span>
+      </div>
+
+      <!-- Safety Breakdown -->
+      <div class="breakdown-section">
+        <h3 class="section-title">
+          <span class="material-symbols-outlined">analytics</span>
+          Safety Breakdown
+        </h3>
+        <div id="checksList" class="checks-list">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Info Card -->
+      <div id="infoCard" class="info-card hidden">
+        <div class="info-card-inner">
+          <span class="material-symbols-outlined">info</span>
+          <div>
+            <p id="infoTitle" class="info-card-title"></p>
+            <p id="infoText" class="info-card-text"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions-section">
+        <button id="viewFullBtn" class="btn-primary">
+          <span>View Full Analysis</span>
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <button id="scanNowBtn" class="btn-scan-now">
+        <span class="material-symbols-outlined">radar</span>
+        Scan Now
+      </button>
+      <div class="footer-links">
+        <button id="settingsBtn" class="footer-link">Settings</button>
+        <div class="footer-dot"></div>
+        <button id="reportBtn" class="footer-link">Report Site</button>
+        <div class="footer-dot"></div>
+        <button class="footer-link" id="dashboardBtn">Dashboard</button>
+      </div>
+    </footer>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
