@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>⛔ Site Blocked — PhishGuard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --danger: #ff003c;
+      --danger-glow: rgba(255, 0, 60, 0.3);
+      --bg: #050505;
+      --surface: #0d0d0d;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+    }
+
+    body {
+      font-family: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 0, 60, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 0, 60, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+      animation: gridPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* ---- Top Banner ---- */
+    .top-banner {
+      width: 100%;
+      background: #000;
+      padding: 14px 28px;
+      border-bottom: 2px solid var(--danger);
+      box-shadow: 0 0 30px var(--danger-glow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      color: var(--danger);
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 16px;
+      color: white;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-style: italic;
+      border-right: 1px solid rgba(255,255,255,0.1);
+      padding-right: 14px;
+    }
+
+    .warning-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .warning-icon {
+      font-size: 22px;
+      animation: pulse 1.5s ease-in-out infinite;
+      color: var(--danger);
+    }
+
+    .warning-label {
+      font-weight: 700;
+      font-size: 12px;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--danger);
+      padding: 4px 12px;
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-leave {
+      background: var(--danger);
+      color: white;
+      border: none;
+      font-weight: 700;
+      padding: 10px 24px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      box-shadow: 0 0 15px var(--danger-glow);
+    }
+
+    .btn-leave:hover {
+      filter: brightness(1.3);
+      box-shadow: 0 0 25px var(--danger-glow);
+    }
+
+    /* ---- Main Content ---- */
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .block-card {
+      max-width: 720px;
+      width: 100%;
+      background: var(--surface);
+      padding: 56px 48px;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 80px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Corner decorations */
+    .block-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 70px; height: 70px;
+      border-top: 2px solid rgba(255, 0, 60, 0.3);
+      border-right: 2px solid rgba(255, 0, 60, 0.3);
+      pointer-events: none;
+    }
+    .block-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 70px; height: 70px;
+      border-bottom: 2px solid rgba(255, 0, 60, 0.3);
+      border-left: 2px solid rgba(255, 0, 60, 0.3);
+      pointer-events: none;
+    }
+
+    /* Danger Shield Icon */
+    .shield-wrap {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .shield-glow {
+      position: absolute;
+      inset: -15px;
+      background: radial-gradient(circle, var(--danger-glow), transparent 70%);
+      animation: glowPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    .shield-icon {
+      position: relative;
+      z-index: 1;
+      width: 64px;
+      height: 64px;
+    }
+
+    .shield-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .block-title {
+      font-size: 38px;
+      font-weight: 900;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      font-style: italic;
+      margin-bottom: 16px;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    .block-title span {
+      color: var(--danger);
+    }
+
+    .block-subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.7;
+      margin-bottom: 32px;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .blocked-url {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 0, 60, 0.05);
+      border: 1px solid rgba(255, 0, 60, 0.15);
+      padding: 12px 18px;
+      margin-bottom: 32px;
+      overflow: hidden;
+    }
+
+    .blocked-url-icon {
+      color: var(--danger);
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .blocked-url-text {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--danger);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Risk Score Meter */
+    .risk-meter {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      padding: 16px 20px;
+      margin-bottom: 32px;
+    }
+
+    .risk-score-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid var(--danger);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 15px var(--danger-glow);
+    }
+
+    .risk-score-num {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--danger);
+    }
+
+    .risk-details {
+      flex: 1;
+    }
+
+    .risk-verdict {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--danger);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .risk-explanation {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Threat Info */
+    .threat-list {
+      list-style: none;
+      margin-bottom: 36px;
+    }
+
+    .threat-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .threat-item:last-child {
+      border-bottom: none;
+    }
+
+    .threat-icon {
+      color: var(--danger);
+      font-size: 16px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .threat-text {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .threat-text strong {
+      color: var(--text);
+    }
+
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-safety {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 220px;
+      justify-content: center;
+      background: var(--danger);
+      color: white;
+      border: none;
+      font-weight: 900;
+      padding: 16px 32px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: inherit;
+      box-shadow: 0 0 25px var(--danger-glow);
+    }
+
+    .btn-safety:hover {
+      filter: brightness(1.3);
+      box-shadow: 0 0 35px var(--danger-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-report {
+      min-width: 180px;
+      background: #1a1a1a;
+      color: #cbd5e1;
+      border: 1px solid rgba(255,255,255,0.1);
+      font-weight: 700;
+      padding: 16px 28px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: inherit;
+    }
+
+    .btn-report:hover {
+      background: #222;
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    /* Status Footer */
+    .meta-bar {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-status {
+      color: var(--danger);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--danger);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* Fixed Footer Badge */
+    .fixed-badge {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface);
+      padding: 6px 18px 6px 6px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      z-index: 100;
+    }
+
+    .fixed-badge-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--danger);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+
+    .fixed-badge-label {
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--danger);
+    }
+
+    .fixed-badge-value {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: white;
+      margin-top: 2px;
+    }
+
+    /* Animations */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .block-card {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .block-card { padding: 36px 24px; }
+      .block-title { font-size: 28px; }
+      .actions { flex-direction: column; }
+      .btn-safety, .btn-report { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Banner -->
+  <div class="top-banner">
+    <div class="top-inner">
+      <div class="top-left">
+        <svg class="logo-icon" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
+          <path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
+        </svg>
+        <span class="brand">PhishGuard</span>
+        <div class="warning-badge">
+          <span class="warning-icon">⛔</span>
+          <span class="warning-label">Site Blocked</span>
+        </div>
+      </div>
+      <div class="top-right">
+        <button class="btn-leave" id="leaveBtn">← Back to Safety</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="block-card">
+      <!-- Shield Icon -->
+      <div class="shield-wrap">
+        <div class="shield-glow"></div>
+        <div class="shield-icon">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 4L8 16V32C8 48 18.4 58.4 32 62C45.6 58.4 56 48 56 32V16L32 4Z" fill="rgba(255,0,60,0.15)" stroke="#ff003c" stroke-width="2"/>
+            <line x1="22" y1="22" x2="42" y2="42" stroke="#ff003c" stroke-width="3" stroke-linecap="round"/>
+            <line x1="42" y1="22" x2="22" y2="42" stroke="#ff003c" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="block-title">This site has been <span>blocked</span></h1>
+
+      <p class="block-subtitle">
+        PhishGuard has detected this website as a <strong>confirmed phishing threat</strong>. 
+        The page was prevented from loading to protect your personal information and security.
+      </p>
+
+      <!-- Blocked URL -->
+      <div class="blocked-url">
+        <span class="blocked-url-icon">🔗</span>
+        <span class="blocked-url-text" id="blockedUrlText">Loading...</span>
+      </div>
+
+      <!-- Risk Meter -->
+      <div class="risk-meter">
+        <div class="risk-score-circle">
+          <span class="risk-score-num" id="riskScoreNum">—</span>
+        </div>
+        <div class="risk-details">
+          <div class="risk-verdict" id="riskVerdict">PHISHING DETECTED</div>
+          <div class="risk-explanation" id="riskExplanation">
+            Multi-layer AI analysis confirmed this URL as a phishing attempt designed to steal your credentials.
+          </div>
+        </div>
+      </div>
+
+      <!-- Threat Details -->
+      <ul class="threat-list" id="threatList">
+        <li class="threat-item">
+          <span class="threat-icon">⚠️</span>
+          <span class="threat-text"><strong>Credential Harvesting:</strong> This site may attempt to steal your login credentials through deceptive forms.</span>
+        </li>
+        <li class="threat-item">
+          <span class="threat-icon">⚠️</span>
+          <span class="threat-text"><strong>Identity Spoofing:</strong> The domain may impersonate a legitimate service to gain your trust.</span>
+        </li>
+        <li class="threat-item">
+          <span class="threat-icon">⚠️</span>
+          <span class="threat-text"><strong>Data Exfiltration:</strong> Any information submitted could be sent to malicious actors.</span>
+        </li>
+      </ul>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button class="btn-safety" id="safetyBtn">
+          <span>🛡️</span> Back to Safety
+        </button>
+        <button class="btn-report" id="reportBtn">View Full Report</button>
+      </div>
+
+      <!-- Meta footer -->
+      <div class="meta-bar">
+        <div class="meta-status">
+          <span class="meta-dot"></span>
+          PhishGuard Protection: Active
+        </div>
+        <span id="riskScoreMeta">Risk Score: —/100</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fixed Badge -->
+  <div class="fixed-badge">
+    <div class="fixed-badge-icon">⛔</div>
+    <div>
+      <div class="fixed-badge-label">Status</div>
+      <div class="fixed-badge-value">Threat Blocked</div>
+    </div>
+  </div>
+
+  <script>
+    // Parse URL params
+    const params = new URLSearchParams(window.location.search);
+    const blockedUrl = decodeURIComponent(params.get('url') || 'Unknown URL');
+    const riskScore = parseInt(params.get('score') || '0');
+    const verdict = params.get('verdict') || 'PHISHING';
+    const details = params.get('details') || '';
+
+    // Populate page
+    document.getElementById('blockedUrlText').textContent = blockedUrl;
+    document.getElementById('riskScoreNum').textContent = riskScore;
+    document.getElementById('riskScoreMeta').textContent = `Risk Score: ${riskScore}/100`;
+
+    if (details) {
+      try {
+        const checksData = JSON.parse(details);
+        if (checksData.length > 0) {
+          const threatList = document.getElementById('threatList');
+          threatList.innerHTML = '';
+          checksData.forEach(check => {
+            const status = (check.status || check.result || '').toLowerCase();
+            const isFail = status === 'fail' || status === 'danger' || status === 'phishing';
+            if (isFail) {
+              const li = document.createElement('li');
+              li.className = 'threat-item';
+              li.innerHTML = `
+                <span class="threat-icon">⚠️</span>
+                <span class="threat-text"><strong>${escapeHtml(check.name || check.check || 'Threat')}:</strong> ${escapeHtml(check.detail || check.message || 'Flagged as dangerous')}</span>
+              `;
+              threatList.appendChild(li);
+            }
+          });
+          // If no failed checks, keep defaults
+          if (threatList.children.length === 0) {
+            threatList.innerHTML = `
+              <li class="threat-item">
+                <span class="threat-icon">⚠️</span>
+                <span class="threat-text"><strong>High Risk Detected:</strong> AI analysis confirmed this as a dangerous phishing site.</span>
+              </li>
+            `;
+          }
+        }
+      } catch(e) {}
+    }
+
+    // Button handlers
+    document.getElementById('leaveBtn').addEventListener('click', () => {
+      window.location.href = 'https://www.google.com';
+    });
+    document.getElementById('safetyBtn').addEventListener('click', () => {
+      window.location.href = 'https://www.google.com';
+    });
+    document.getElementById('reportBtn').addEventListener('click', () => {
+      window.open('http://localhost:5000/url', '_blank');
+    });
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

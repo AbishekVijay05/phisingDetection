@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>⚠️ Suspicious Site — PhishGuard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --warn: #ff9a00;
+      --warn-glow: rgba(255, 154, 0, 0.25);
+      --warn-subtle: rgba(255, 154, 0, 0.08);
+      --bg: #07080a;
+      --surface: #0d0e12;
+      --border: rgba(255, 255, 255, 0.07);
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --safe-green: #2aff2a;
+    }
+
+    body {
+      font-family: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 154, 0, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 154, 0, 0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+      animation: gridPulse 5s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+    }
+
+    /* ---- Top Banner ---- */
+    .top-banner {
+      width: 100%;
+      background: #000;
+      padding: 14px 28px;
+      border-bottom: 2px solid var(--warn);
+      box-shadow: 0 0 25px var(--warn-glow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      color: var(--warn);
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 16px;
+      color: white;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-style: italic;
+      border-right: 1px solid rgba(255,255,255,0.1);
+      padding-right: 14px;
+    }
+
+    .warning-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .warning-icon {
+      font-size: 22px;
+      animation: pulse 2s ease-in-out infinite;
+      color: var(--warn);
+    }
+
+    .warning-label {
+      font-weight: 700;
+      font-size: 12px;
+      color: #1a0e00;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--warn);
+      padding: 4px 12px;
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-leave {
+      background: transparent;
+      color: var(--warn);
+      border: 1px solid var(--warn);
+      font-weight: 700;
+      padding: 10px 24px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .btn-leave:hover {
+      background: var(--warn-subtle);
+      box-shadow: 0 0 15px var(--warn-glow);
+    }
+
+    /* ---- Main Content ---- */
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .warn-card {
+      max-width: 720px;
+      width: 100%;
+      background: var(--surface);
+      padding: 56px 48px;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.7);
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .warn-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 70px; height: 70px;
+      border-top: 2px solid rgba(255, 154, 0, 0.25);
+      border-right: 2px solid rgba(255, 154, 0, 0.25);
+      pointer-events: none;
+    }
+    .warn-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 70px; height: 70px;
+      border-bottom: 2px solid rgba(255, 154, 0, 0.25);
+      border-left: 2px solid rgba(255, 154, 0, 0.25);
+      pointer-events: none;
+    }
+
+    /* Warning Shield Icon */
+    .shield-wrap {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .shield-glow {
+      position: absolute;
+      inset: -15px;
+      background: radial-gradient(circle, var(--warn-glow), transparent 70%);
+      animation: glowPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+
+    .shield-icon {
+      position: relative;
+      z-index: 1;
+      width: 64px;
+      height: 64px;
+    }
+
+    .shield-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .warn-title {
+      font-size: 36px;
+      font-weight: 900;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      font-style: italic;
+      margin-bottom: 16px;
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    .warn-title span {
+      color: var(--warn);
+    }
+
+    .warn-subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.7;
+      margin-bottom: 28px;
+      max-width: 540px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* URL Display */
+    .target-url {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--warn-subtle);
+      border: 1px solid rgba(255, 154, 0, 0.15);
+      padding: 12px 18px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+
+    .target-url-icon {
+      color: var(--warn);
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .target-url-text {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--warn);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Risk Score Bar */
+    .risk-meter {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      padding: 16px 20px;
+      margin-bottom: 28px;
+    }
+
+    .risk-score-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid var(--warn);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 12px var(--warn-glow);
+    }
+
+    .risk-score-num {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--warn);
+    }
+
+    .risk-details { flex: 1; }
+
+    .risk-verdict {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .risk-explanation {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Warning Info Items */
+    .warning-info {
+      list-style: none;
+      margin-bottom: 36px;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .info-item:last-child { border-bottom: none; }
+
+    .info-icon {
+      color: var(--warn);
+      font-size: 16px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .info-text {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .info-text strong { color: var(--text); }
+
+    /* Proceed Question */
+    .proceed-question {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 24px;
+      padding: 20px 0;
+      border-top: 1px solid rgba(255, 154, 0, 0.15);
+      border-bottom: 1px solid rgba(255, 154, 0, 0.15);
+      background: rgba(255, 154, 0, 0.03);
+    }
+
+    .proceed-question span {
+      color: var(--warn);
+    }
+
+    /* Action Buttons */
+    .actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-go-back {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 200px;
+      justify-content: center;
+      background: var(--warn);
+      color: #1a0e00;
+      border: none;
+      font-weight: 900;
+      padding: 16px 32px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: inherit;
+      box-shadow: 0 0 20px var(--warn-glow);
+    }
+
+    .btn-go-back:hover {
+      filter: brightness(1.2);
+      box-shadow: 0 0 30px var(--warn-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-proceed {
+      min-width: 200px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-weight: 600;
+      padding: 16px 28px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-family: inherit;
+    }
+
+    .btn-proceed:hover {
+      color: var(--warn);
+      border-color: var(--warn);
+      background: var(--warn-subtle);
+    }
+
+    .btn-proceed .proceed-arrow {
+      transition: transform 0.3s;
+    }
+
+    .btn-proceed:hover .proceed-arrow {
+      transform: translateX(4px);
+    }
+
+    /* Meta bar */
+    .meta-bar {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-status {
+      color: var(--warn);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--warn);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Fixed Badge */
+    .fixed-badge {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface);
+      padding: 6px 18px 6px 6px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      z-index: 100;
+    }
+
+    .fixed-badge-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--warn);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1a0e00;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .fixed-badge-label {
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--warn);
+    }
+
+    .fixed-badge-value {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: white;
+      margin-top: 2px;
+    }
+
+    /* Countdown timer before proceed is active */
+    .proceed-timer {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 12px;
+      display: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .warn-card { padding: 36px 24px; }
+      .warn-title { font-size: 26px; }
+      .actions { flex-direction: column; }
+      .btn-go-back, .btn-proceed { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Banner -->
+  <div class="top-banner">
+    <div class="top-inner">
+      <div class="top-left">
+        <svg class="logo-icon" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
+          <path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
+        </svg>
+        <span class="brand">PhishGuard</span>
+        <div class="warning-badge">
+          <span class="warning-icon">⚠️</span>
+          <span class="warning-label">Suspicious Site</span>
+        </div>
+      </div>
+      <div class="top-right">
+        <button class="btn-leave" id="leaveBtn">← Go Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="warn-card">
+      <!-- Shield Icon -->
+      <div class="shield-wrap">
+        <div class="shield-glow"></div>
+        <div class="shield-icon">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 4L8 16V32C8 48 18.4 58.4 32 62C45.6 58.4 56 48 56 32V16L32 4Z" fill="rgba(255,154,0,0.12)" stroke="#ff9a00" stroke-width="2"/>
+            <text x="32" y="42" text-anchor="middle" fill="#ff9a00" font-size="28" font-weight="bold" font-family="sans-serif">!</text>
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="warn-title">This site looks <span>suspicious</span></h1>
+
+      <p class="warn-subtitle">
+        PhishGuard's AI analysis has flagged potential security concerns with this website. 
+        The page was paused to let you decide whether to continue.
+      </p>
+
+      <!-- Target URL -->
+      <div class="target-url">
+        <span class="target-url-icon">🔗</span>
+        <span class="target-url-text" id="targetUrlText">Loading...</span>
+      </div>
+
+      <!-- Risk Meter -->
+      <div class="risk-meter">
+        <div class="risk-score-circle">
+          <span class="risk-score-num" id="riskScoreNum">—</span>
+        </div>
+        <div class="risk-details">
+          <div class="risk-verdict" id="riskVerdict">SUSPICIOUS</div>
+          <div class="risk-explanation" id="riskExplanation">
+            Some indicators suggest this site might not be safe. Proceed with caution.
+          </div>
+        </div>
+      </div>
+
+      <!-- Warning Details -->
+      <ul class="warning-info" id="warningList">
+        <li class="info-item">
+          <span class="info-icon">⚠️</span>
+          <span class="info-text"><strong>Unfamiliar Domain:</strong> This website's domain may be mimicking a well-known service.</span>
+        </li>
+        <li class="info-item">
+          <span class="info-icon">⚠️</span>
+          <span class="info-text"><strong>Suspicious Patterns:</strong> The URL structure contains patterns commonly associated with phishing attempts.</span>
+        </li>
+        <li class="info-item">
+          <span class="info-icon">ℹ️</span>
+          <span class="info-text"><strong>Recommendation:</strong> Do not enter personal information, passwords, or payment details on this site.</span>
+        </li>
+      </ul>
+
+      <!-- Proceed Question -->
+      <div class="proceed-question">
+        Would you like to <span>proceed</span>?
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button class="btn-go-back" id="goBackBtn">
+          🛡️ No, Go Back
+        </button>
+        <button class="btn-proceed" id="proceedBtn">
+          Yes, Proceed
+          <span class="proceed-arrow">→</span>
+        </button>
+      </div>
+
+      <p class="proceed-timer" id="proceedTimer"></p>
+
+      <!-- Meta bar -->
+      <div class="meta-bar">
+        <div class="meta-status">
+          <span class="meta-dot"></span>
+          PhishGuard: Monitoring
+        </div>
+        <span id="riskScoreMeta">Risk Score: —/100</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fixed Badge -->
+  <div class="fixed-badge">
+    <div class="fixed-badge-icon">⚠️</div>
+    <div>
+      <div class="fixed-badge-label">Status</div>
+      <div class="fixed-badge-value">Caution Advised</div>
+    </div>
+  </div>
+
+  <script>
+    // Parse URL params
+    const params = new URLSearchParams(window.location.search);
+    const targetUrl = decodeURIComponent(params.get('url') || 'Unknown URL');
+    const riskScore = parseInt(params.get('score') || '0');
+    const verdict = params.get('verdict') || 'SUSPICIOUS';
+    const details = params.get('details') || '';
+
+    // Populate page
+    document.getElementById('targetUrlText').textContent = targetUrl;
+    document.getElementById('riskScoreNum').textContent = riskScore;
+    document.getElementById('riskScoreMeta').textContent = `Risk Score: ${riskScore}/100`;
+
+    if (details) {
+      try {
+        const checksData = JSON.parse(details);
+        if (checksData.length > 0) {
+          const warningList = document.getElementById('warningList');
+          warningList.innerHTML = '';
+          checksData.forEach(check => {
+            const status = (check.status || check.result || '').toLowerCase();
+            const isFail = status === 'fail' || status === 'danger' || status === 'phishing';
+            const isWarn = status === 'warning' || status === 'warn' || status === 'suspicious';
+            if (isFail || isWarn) {
+              const li = document.createElement('li');
+              li.className = 'info-item';
+              li.innerHTML = `
+                <span class="info-icon">${isFail ? '⚠️' : 'ℹ️'}</span>
+                <span class="info-text"><strong>${escapeHtml(check.name || check.check || 'Warning')}:</strong> ${escapeHtml(check.detail || check.message || 'Flagged as suspicious')}</span>
+              `;
+              warningList.appendChild(li);
+            }
+          });
+          if (warningList.children.length === 0) {
+            warningList.innerHTML = `
+              <li class="info-item">
+                <span class="info-icon">⚠️</span>
+                <span class="info-text"><strong>Suspicious Activity:</strong> AI analysis detected potential risks with this site.</span>
+              </li>
+            `;
+          }
+        }
+      } catch(e) {}
+    }
+
+    // Button handlers
+    document.getElementById('leaveBtn').addEventListener('click', goBack);
+    document.getElementById('goBackBtn').addEventListener('click', goBack);
+    document.getElementById('proceedBtn').addEventListener('click', proceed);
+
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'https://www.google.com';
+      }
+    }
+
+    function proceed() {
+      // Tell the background script to whitelist this URL temporarily,
+      // then navigate to the original URL.
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        chrome.runtime.sendMessage({
+          type: 'allowUrl',
+          url: targetUrl
+        }, () => {
+          window.location.href = targetUrl;
+        });
+      } else {
+        window.location.href = targetUrl;
+      }
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
