@@ -14,7 +14,7 @@ def _get_client():
         return None
     
     # Try GEMINI_API_KEY first as per project config, then fallback to GOOGLE_API_KEY
-    api_key = "YOUR_API_KEY_HERE"
+    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
     if not api_key:
         return None
         
@@ -25,7 +25,7 @@ def _get_client():
         return None
 
 
-MODEL_ID = "gemini-1.5-flash"
+MODEL_ID = "gemini-3-flash-preview"
 
 
 def analyze_url_with_gemini(url, features=None):
@@ -53,7 +53,7 @@ ANALYSIS: [2-3 sentence analysis explaining your reasoning]
 
     try:
         response = client.models.generate_content(model=MODEL_ID, contents=prompt)
-        text = response.text.strip() if response.text else "No response text."
+        text = response.text.strip() if hasattr(response, 'text') and response.text else "No response text received from AI."
         result = _parse_gemini_response(text)
         result['success'] = True
         return result
