@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Model artifacts (too large for git)
+artifacts/nb/*.joblib
+artifacts/roberta/*.safetensors
+artifacts/roberta/*.bin
+artifacts/roberta/checkpoint-*/
+artifacts/roberta/tokenizer.json
+
+# Dataset files (too large for git)
+dataset/*.csv
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+runs/
+wandb/

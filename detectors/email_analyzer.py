@@ -1,5 +1,7 @@
 import email
+import os
 import re
+import sys
 from email import policy
 from email.parser import BytesParser
 from detectors.url_analyzer import analyze_url
@@ -37,6 +39,88 @@ SUSPICIOUS_SENDER_DOMAINS = {
     'mail.ru', 'yandex.ru', 'tempmail.com', 'guerrillamail.com',
     'throwaway.email', 'mailinator.com', 'sharklasers.com'
 }
+
+
+# ========================
+# Hybrid ML model (emailphising02)
+# ========================
+
+_HYBRID_AVAILABLE = False
+_NB_MODEL = None
+_RO_MODEL = None
+_ENSEMBLE_CLASS = None
+_PREDICT_NB = None
+_PREDICT_RO = None
+
+
+def _init_hybrid_model():
+    """
+    Lazy-load the hybrid phishing model from the
+    `emailphising02/phishing_detection_project` package.
+    """
+    global _HYBRID_AVAILABLE, _NB_MODEL, _RO_MODEL, _ENSEMBLE_CLASS, _PREDICT_NB, _PREDICT_RO
+
+    if _HYBRID_AVAILABLE and _NB_MODEL is not None and _RO_MODEL is not None:
+        return
+
+    try:
+        repo_root = os.path.dirname(os.path.dirname(__file__))
+        emailproj_root = os.path.join(repo_root, "emailphising02")
+        if emailproj_root not in sys.path:
+            sys.path.append(emailproj_root)
+
+        from phishing_detection_project.ensemble.hybrid_model import HybridEnsemble  # type: ignore
+        from phishing_detection_project.model.naive_bayes_model import (  # type: ignore
+            load_naive_bayes,
+            predict_proba_phishing,
+        )
+        from phishing_detection_project.model.roberta_model import (  # type: ignore
+            load_roberta,
+            predict_proba_phishing_roberta,
+        )
+
+        artifacts_root = os.path.join(
+            emailproj_root, "phishing_detection_project", "artifacts"
+        )
+        nb_dir = os.path.join(artifacts_root, "nb")
+        roberta_dir = os.path.join(artifacts_root, "roberta")
+
+        _NB_MODEL = load_naive_bayes(nb_dir)
+        _RO_MODEL = load_roberta(roberta_dir)
+        _ENSEMBLE_CLASS = HybridEnsemble
+        _PREDICT_NB = predict_proba_phishing
+        _PREDICT_RO = predict_proba_phishing_roberta
+        _HYBRID_AVAILABLE = True
+    except Exception:
+        # If anything fails, we silently fall back to heuristic scoring.
+        _HYBRID_AVAILABLE = False
+
+
+def _hybrid_ml_score(text):
+    """
+    Use the hybrid model to produce:
+    - score: 0–100
+    - probability: 0–1
+    - prediction: LEGITIMATE | PHISHING
+
+    Falls back to zeros if unavailable or text is empty.
+    """
+    _init_hybrid_model()
+
+    if not _HYBRID_AVAILABLE or not text or not text.strip():
+        return {"score": 0.0, "probability": 0.0, "prediction": "LEGITIMATE", "available": False}
+
+    try:
+        ensemble = _ENSEMBLE_CLASS(mode="weighted", roberta_weight=0.7, nb_weight=0.3)
+        nb_p = float(_PREDICT_NB(_NB_MODEL, [text])[0])
+        ro_p = float(_PREDICT_RO(_RO_MODEL, [text])[0])
+        final_p = float(ensemble.combine([ro_p], [nb_p])[0])
+        p = float(max(0.0, min(1.0, final_p)))
+        # Website label threshold: 0.61 (61%)
+        pred = "PHISHING" if p >= 0.61 else "LEGITIMATE"
+        return {"score": p * 100.0, "probability": p, "prediction": pred, "available": True}
+    except Exception:
+        return {"score": 0.0, "probability": 0.0, "prediction": "LEGITIMATE", "available": False}
 
 
 def parse_eml_file(file_content):
@@ -219,10 +303,17 @@ def analyze_email_content(parsed_email):
 
     score = min(score, 100)
 
+    # Combine header/body content into a single text string for the ML model.
+    ml_text = f"From: {sender}\nSubject: {subject}\n\n{body}"
+    hybrid = _hybrid_ml_score(ml_text)
+
     return {
         'checks': checks,
         'rule_score': score,
-        'ml_score': _email_ml_heuristic(body_lower, urgency_found, patterns_found, link_score),
+        'ml_score': float(hybrid.get("score", 0.0)),
+        'hybrid_probability': float(hybrid.get("probability", 0.0)),
+        'hybrid_prediction': hybrid.get("prediction", "LEGITIMATE"),
+        'hybrid_available': bool(hybrid.get("available", False)),
         'links_analyzed': link_results,
         'urgency_keywords': urgency_found,
         'sender_domain': sender_domain,
@@ -292,11 +383,11 @@ def _extract_domain(email_str):
 
 
 def _email_ml_heuristic(body_lower, urgency_found, patterns_found, link_score):
-    """ML-like heuristic for email analysis."""
+    """Deprecated heuristic kept for compatibility; no longer used."""
     score = 0
     score += min(len(urgency_found) * 7, 28)
     score += min(len(patterns_found) * 10, 30)
     score += min(link_score // 3, 20)
     if len(body_lower) < 100:
-        score += 5  # very short emails can be suspicious
+        score += 5
     return min(score, 100)

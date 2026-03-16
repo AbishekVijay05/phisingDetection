@@ -167,6 +167,9 @@ def api_analyze_email():
             'links': email_result.get('links', []),
             'attachments': email_result.get('attachments', []),
             'urgency_keywords': email_result.get('urgency_keywords', []),
+            'hybrid_prediction': email_result.get('hybrid_prediction', None),
+            'hybrid_probability': email_result.get('hybrid_probability', None),
+            'hybrid_available': email_result.get('hybrid_available', False),
         }
     )
 

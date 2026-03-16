@@ -1,0 +1,87 @@
+Delivered-To: ashwinsingle1316@gmail.com
+Received: by 2002:a05:7412:202a:b0:1b8:a213:4530 with SMTP id u42csp328rda;
+        Fri, 27 Feb 2026 04:46:40 -0800 (PST)
+X-Received: by 2002:a05:6a21:689:b0:394:f972:43c3 with SMTP id adf61e73a8af0-395c3b3ac5amr2768085637.63.1772196399919;
+        Fri, 27 Feb 2026 04:46:39 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1772196399; cv=none;
+        d=google.com; s=arc-20240605;
+        b=hpELWULikk8Hi9EQ9PZaxuoP2fBMv7U89o/rBTA9cW7wfc2chS6D70S1sTuWTBNkvx
+         kNncvAHyr4fNRzgUSiO+81EL0vg9BwIqeniidGn3xE7tQLgEvWgDMTtjOYRTyyNTYbae
+         N1NVt+iBEeVAWeM1XGNv9f6eKYS1qHocEVsEHI7tOYFA7RWWoU1F6PSuqyRs7Tx8eGlR
+         ObeIaCRDepCxH3OGLJWYo6OEHeFnDQTAxfo5+dxaul5kFpecHsdsVYGJSiJ6Qb7qeCFq
+         yrNEWw5onhh43vehGDLwGggavwSwdotIkKYAHlOQMRZa+mCK5GZZVMtO+eWnMGDh+wrU
+         jBIg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:mime-version:subject:message-id:to:from
+         :date;
+        bh=o6NOw+RNFKUyE5X066lFPq6V1KVVsruSPQt2n+l19Ag=;
+        fh=xEOo1qbnnGYNcjeDjfARRmA7X5BppaJPGRILllqXIPk=;
+        b=L5g567INYclYQtUwzMNUwYMFelXDZNz+hL7yV1jKsGPonWDRbHc8pMztVIvs2doimv
+         ntPBSmi/YTzWFSotfDNXdnnh9Qsn7A7ep8sCQBA/ecKdYCA7QM4vmi1wmrXj8eJsBCs0
+         ij9Ib1BumH1srKpL9Y7UEbSKzwfA7lrnwm3oaAWza97o0PUqMpUM9v8/1+oZMQZ5tHZI
+         KjnuRt9bBHaIZt3IJYwFHK5TPLiG3EVl3vE/yPnk6FXOIf1/JPX8qaXxbFJQVdxyqg5l
+         BHr9YCwcqspIPVZTH5uL/Ol/gm222eCrOtbOa1QkSuXSTjXt364CMWO724bCATvAFC1U
+         5OtQ==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: domain of donotreply.railone@cris.org.in designates 203.176.113.25 as permitted sender) smtp.mailfrom=donotreply.railone@cris.org.in;
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=cris.org.in
+Return-Path: <donotreply.railone@cris.org.in>
+Received: from imss.cris.org.in (imss.cris.org.in. [203.176.113.25])
+        by mx.google.com with ESMTPS id 41be03b00d2f7-c70fa5bf574si7345488a12.90.2026.02.27.04.46.39
+        for <ashwinsingle1316@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 Feb 2026 04:46:39 -0800 (PST)
+Received-SPF: pass (google.com: domain of donotreply.railone@cris.org.in designates 203.176.113.25 as permitted sender) client-ip=203.176.113.25;
+Authentication-Results: mx.google.com;
+       spf=pass (google.com: domain of donotreply.railone@cris.org.in designates 203.176.113.25 as permitted sender) smtp.mailfrom=donotreply.railone@cris.org.in;
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=cris.org.in
+Received: from imss.cris.org.in (unknown [127.0.0.1])
+	by DDEI (Postfix) with ESMTP id 69016B7C1997
+	for <ashwinsingle1316@gmail.com>; Fri, 27 Feb 2026 18:14:55 +0530 (IST)
+Received: from imss.cris.org.in (unknown [127.0.0.1])
+	by DDEI (Postfix) with ESMTP id 6717CB7C19F2
+	for <ashwinsingle1316@gmail.com>; Fri, 27 Feb 2026 18:14:55 +0530 (IST)
+X-TM-AS-ERS: 127.5.254.253
+X-TM-AS-SMTP: 1.0 bWFpbDEuY3Jpcy5vcmcuaW4= ZG9ub3RyZXBseS5yYWlsb25lQGNyaXMub
+	3JnLmlu
+X-DDEI-TLS-USAGE: Unused
+Received: from mail1.cris.org.in (unknown )
+	by imss.cris.org.in (Postfix) with ESMTP
+	for <ashwinsingle1316@gmail.com>; Fri, 27 Feb 2026 18:14:55 +0530 (IST)
+Received: from pcpsamail1.cris.aaikyam ([10.77.41.54])
+          by mail1.cris.org.in (HCL Domino Release 12.0.2FP5HF12)
+          with ESMTP id 2026022718153135-5768748 ;
+          Fri, 27 Feb 2026 18:15:31 +0530 
+Received: from pcpsaapp06.cris.aaikyam (unknown [10.77.10.23])
+	by pcpsamail1.cris.aaikyam (Postfix) with ESMTP id 6696140C3ACD
+	for <ashwinsingle1316@gmail.com>; Fri, 27 Feb 2026 18:15:31 +0530 (IST)
+Date: Fri, 27 Feb 2026 18:15:31 +0530 (IST)
+From: donotreply.railone@cris.org.in
+To: ashwinsingle1316@gmail.com
+Message-ID: <1676980558.76355.1772196331418@pcpsaapp06.cris.aaikyam>
+Subject: OTP for Email Verification on RailOne
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on CRISMail1/cris(Release 12.0.2FP5HF12 | December
+ 15, 2024) at 02/27/2026 06:15:32 PM,
+	Serialize by Router on CRISMail1/cris(Release 12.0.2FP5HF12 | December 15, 2024) at
+ 02/27/2026 06:15:39 PM,
+	Serialize complete at 02/27/2026 06:15:39 PM
+X-TNEFEvaluated: 1
+Content-Transfer-Encoding: 7bit
+Content-Type: text/html; charset=us-ascii
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+ Dear ASHWIN M, <BR>
+<BR>
+ Use OTP  559747 to verify your email on RailOne.<BR>
+<BR>
+<BR>
+ Thank You,<BR>
+  RailOne<br>----------------------------------------------------------------------------------------------------------------<br><p style='font-style: italic;'>Disclaimer: This is a system generated email. Please do not reply to this email. If you have any queries, please call 139.</p></body>
+</html>

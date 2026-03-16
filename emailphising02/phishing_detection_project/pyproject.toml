@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phishing-detection"
+version = "1.0.0"
+description = "Hybrid RoBERTa + Multinomial Naive Bayes email phishing detector with LIME explainability"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+
+dependencies = [
+    "torch>=2.1",
+    "transformers>=4.39",
+    "datasets>=2.18",
+    "accelerate>=0.28",
+    "scikit-learn>=1.4",
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "joblib>=1.3",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.1",
+    "nltk>=3.8",
+    "kagglehub>=0.2",
+    "tqdm>=4.66",
+    "matplotlib>=3.8",
+    "seaborn>=0.13",
+    "lime>=0.2.0.1",
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+    "pydantic>=2.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "ruff>=0.3",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+[tool.setuptools.packages.find]
+include = ["model*", "ensemble*", "evaluation*", "inference*", "preprocessing*", "training*", "deployment*"]

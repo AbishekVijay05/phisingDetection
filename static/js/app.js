@@ -144,8 +144,33 @@ async function scanEmailForm() {
 function displayEmailResults(data) {
     if (data.error) { alert('Error: ' + data.error); return; }
     showEl('email-results');
-    animateCircleMeter('email-meter-circle', 'email-score', data.risk_score);
-    document.getElementById('email-verdict-badge').textContent = getVerdictLabel(data.verdict);
+    // Threat level meter (hybrid-driven):
+    // - PHISHING: 75–90 based on hybrid phishing probability (threshold 0.61)
+    // - LEGITIMATE: 5–20 based on closeness to threshold (0.00 -> 5, 0.61 -> 20)
+    let threatScore = data.risk_score;
+    if (data?.hybrid_available && typeof data?.hybrid_probability === 'number') {
+        const p = Math.max(0, Math.min(1, data.hybrid_probability));
+        const pred = (data?.hybrid_prediction || '').toUpperCase();
+        if (pred === 'PHISHING') {
+            const t = (p - 0.61) / (1.0 - 0.61); // 0..1 for p in 0.61..1.0
+            const scaled = 75 + (Math.max(0, Math.min(1, t)) * 15);
+            threatScore = Math.round(scaled * 10) / 10;
+        } else if (pred === 'LEGITIMATE') {
+            const t = p / 0.61; // 0..1 for p in 0.00..0.61
+            const scaled = 5 + (Math.max(0, Math.min(1, t)) * 15);
+            threatScore = Math.round(scaled * 10) / 10;
+        }
+    }
+    animateCircleMeter('email-meter-circle', 'email-score', threatScore);
+    const badge = document.getElementById('email-verdict-badge');
+    if (badge) {
+        if (data.hybrid_available && (data.hybrid_prediction || data.hybrid_probability !== undefined)) {
+            const pred = (data.hybrid_prediction || 'LEGITIMATE').toUpperCase();
+            badge.textContent = pred;
+        } else {
+            badge.textContent = getVerdictLabel(data.verdict);
+        }
+    }
     renderChecksTW('email-checks-list', data.checks);
     const g = document.getElementById('email-gemini-analysis');
     if(g) g.innerHTML = `"${data.gemini_analysis || 'Not available'}" — <span class="text-primary font-bold">GEMINI AI</span>`;

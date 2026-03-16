@@ -1,0 +1,4 @@
+{
+  "type": "tfidf_multinomial_nb",
+  "stop_words": "english"
+}
